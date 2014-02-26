@@ -196,12 +196,12 @@ func acceptAny(valid string) func(rune) bool {
 }
 
 // Read one character, but only if it is one of the characters in the given string.
-func (l *Lexer) AcceptAnyOne(valid string) bool {
+func (l *Lexer) Accept(valid string) bool {
 	return l.One(acceptAny(valid))
 }
 
 // Read as many characters as possible, but only characters that exist in the given string.
-func (l *Lexer) AcceptAnyRun(valid string) (acceptnum int) {
+func (l *Lexer) AcceptRun(valid string) (acceptnum int) {
 	return l.Run(acceptAny(valid))
 }
 
@@ -212,11 +212,11 @@ func not(in func(rune) bool) func(rune) bool {
 }
 
 // Read one character, but only if it is NOT one of the characters in the given string.
-func (l *Lexer) ExceptAnyOne(valid string) bool {
+func (l *Lexer) Except(valid string) bool {
 	return l.One(not(acceptAny(valid)))
 }
 
 // Read as many characters as possible, but only characters that do NOT exist in the given string.
-func (l *Lexer) ExceptAnyRun(valid string) (acceptnum int) {
+func (l *Lexer) ExceptRun(valid string) (acceptnum int) {
 	return l.Run(not(acceptAny(valid)))
 }

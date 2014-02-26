@@ -19,7 +19,7 @@ func symbolState(l *Lexer) StateFn {
 	if l.Peek() == Eof {
 		return l.EOF()
 	}
-	ok := l.ExceptAnyRun(" =")
+	ok := l.ExceptRun(" =")
 	if ok == 0 {
 		return l.Errorf("Expected symbol!")
 	}
@@ -30,7 +30,7 @@ func symbolState(l *Lexer) StateFn {
 func afterSymbolState(l *Lexer) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
-	if l.AcceptAnyOne("=") == false {
+	if l.Accept("=") == false {
 		return l.Errorf("Expected operator '='!")
 	}
 	l.Emit(TokenEquals)
@@ -40,12 +40,12 @@ func afterSymbolState(l *Lexer) StateFn {
 func afterOperatorState(l *Lexer) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
-	if l.AcceptAnyOne("0123456789") {
-		l.AcceptAnyRun("0123456789")
+	if l.Accept("0123456789") {
+		l.AcceptRun("0123456789")
 		l.Emit(TokenNumber)
 		return semiState
 	}
-	if l.AcceptAnyOne("\"") {
+	if l.Accept("\"") {
 		return stringState
 	}
 	return l.Errorf("Expected constant number or string!")
@@ -53,16 +53,16 @@ func afterOperatorState(l *Lexer) StateFn {
 
 func stringState(l *Lexer) StateFn {
 	for {
-		l.ExceptAnyRun("\"\\")
+		l.ExceptRun("\"\\")
 		if l.Peek() == Eof {
 			return l.Errorf("EOF in the middle of a string!")
 		}
-		if l.AcceptAnyOne("\"") {
+		if l.Accept("\"") {
 			l.Emit(TokenString)
 			return semiState
 		}
-		if l.AcceptAnyOne("\\") {
-			if l.AcceptAnyOne("\"\\") == false {
+		if l.Accept("\\") {
+			if l.Accept("\"\\") == false {
 				return l.Errorf("Expected a known escape character (\\ or \"), instead of: %c", l.Next())
 			}
 		}
@@ -73,7 +73,7 @@ func stringState(l *Lexer) StateFn {
 func semiState(l *Lexer) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
-	if l.AcceptAnyOne(";") {
+	if l.Accept(";") {
 		l.Emit(TokenSemi)
 		return symbolState
 	}

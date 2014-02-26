@@ -38,15 +38,15 @@ func TestBasic(t *testing.T) {
 	if l.Len() != 0 {
 		t.Fatalf("Ignore failed")
 	}
-	if l.AcceptAnyRun("tse") != 4 || l.Get() != "test" {
+	if l.AcceptRun("tse") != 4 || l.Get() != "test" {
 		t.Fatalf("AcceptAnyRun failed")
 	}
 	stored = l.Mark()
-	if l.ExceptAnyRun("XY") != 3 || l.Get() != "testing" {
+	if l.ExceptRun("XY") != 3 || l.Get() != "testing" {
 		t.Fatalf("ExceptAnyRun failed")
 	}
 	l.Ignore()
-	if l.ExceptAnyOne("XYXY") {
+	if l.Except("XYXY") {
 		t.Fatalf("ExceptAnyOne succeeded")
 	}
 	if l.Find("spoopty") {
