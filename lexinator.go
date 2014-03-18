@@ -108,7 +108,7 @@ func (l *Lexer) Emit(typ TokenType) {
 }
 
 // Emit a token of type TokenEOF.
-func (l *Lexer) EOF() StateFn {
+func (l *Lexer) EmitEof() StateFn {
 	l.EmitString(TokenEOF, "EOF")
 	return nil
 }
@@ -119,9 +119,17 @@ func (l *Lexer) Errorf(format string, args ...interface{}) StateFn {
 	return nil
 }
 
+// Return true if the lexer has reached the end of the file.
+func (l *Lexer) Eof() bool {
+	if l.mark.pos >= len(l.input) {
+		return true
+	}
+	return false
+}
+
 // Read a single character.
 func (l *Lexer) Next() (char rune) {
-	if l.mark.pos >= len(l.input) {
+	if l.Eof() {
 		l.mark.width = 0
 		return Eof
 	}

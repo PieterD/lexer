@@ -17,7 +17,7 @@ func symbolState(l *Lexer) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Peek() == Eof {
-		return l.EOF()
+		return l.EmitEof()
 	}
 	ok := l.ExceptRun(" =")
 	if ok == 0 {

@@ -73,8 +73,11 @@ func TestBasic(t *testing.T) {
 	if !l.String("ABtestingXYXYZ\nline2") {
 		t.Fatalf("String failed")
 	}
+	if !l.Eof() {
+		t.Fatalf("Expected Eof to return true")
+	}
 	if l.Next() != Eof {
-		t.Fatalf("Expected Eof")
+		t.Fatalf("Expected Next to return Eof")
 	}
 	if l.Accept("\n") {
 		t.Fatalf("Did not expect a successful accept")
