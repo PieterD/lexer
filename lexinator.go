@@ -40,6 +40,21 @@ func New(name string, input string, start_state StateFn) *Lexer {
 	return l
 }
 
+// Spawn a goroutine which keeps sending tokens on the returned channel,
+// until TokenStopped would be encountered.
+func (l *Lexer) Go() <-chan Token {
+	go func() {
+		defer close(l.tokens)
+		for {
+			l.state = l.state(l)
+			if l.state == nil {
+				return
+			}
+		}
+	}()
+	return l.tokens
+}
+
 // Get an Token from the Lexer.
 func (l *Lexer) Token() Token {
 	for {

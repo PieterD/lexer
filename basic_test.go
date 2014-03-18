@@ -104,4 +104,15 @@ barbaz="Hello world";
 			t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
 		}
 	}
+	// Test Go
+	l = New("anonymous", text, symbolState)
+	tokenchan := l.Go()
+	for i, expected := range tokens {
+		token := <-tokenchan
+		if !(token.Typ == TokenEmpty && expected.Typ == TokenStopped) {
+			if token != expected {
+				t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
+			}
+		}
+	}
 }
