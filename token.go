@@ -12,7 +12,8 @@ type Token struct {
 type TokenType int
 
 const (
-	TokenStopped TokenType = -1 - iota
+	TokenEmpty TokenType = -iota
+	TokenStopped
 	TokenError
 	TokenEOF
 )
