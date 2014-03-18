@@ -21,6 +21,9 @@ func TestBasic(t *testing.T) {
 	if l.Get() != "AB" {
 		t.Fatalf("Get returned wrong string")
 	}
+	if l.Last() != 'B' {
+		t.Fatalf("Last returned wrong character")
+	}
 	if l.Peek() != 't' {
 		t.Fatalf("Peek returned wrong character")
 	}

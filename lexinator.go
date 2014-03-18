@@ -19,6 +19,8 @@ type Lexer struct {
 	prev   Mark
 }
 
+// The Mark type (used by Mark and Unmark) can be used to save
+// the current state of the lexer, and restore it later.
 type Mark struct {
 	pos   int
 	line  int
@@ -85,6 +87,12 @@ func (l *Lexer) Get() string {
 	return str
 }
 
+// Get the last character accepted into the token.
+func (l *Lexer) Last() rune {
+	r, _ := utf8.DecodeLastRuneInString(l.Get())
+	return r
+}
+
 // Store the state of the lexer.
 func (l *Lexer) Mark() Mark {
 	return l.mark
@@ -108,12 +116,14 @@ func (l *Lexer) Emit(typ TokenType) {
 }
 
 // Emit a token of type TokenEOF.
+// Returns nil.
 func (l *Lexer) EmitEof() StateFn {
 	l.EmitString(TokenEOF, "EOF")
 	return nil
 }
 
 // Emit an Error token.
+// Like EmitEof, Errorf returns nil.
 func (l *Lexer) Errorf(format string, args ...interface{}) StateFn {
 	l.EmitString(TokenError, fmt.Sprintf(format, args...))
 	return nil
