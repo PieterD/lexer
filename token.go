@@ -25,6 +25,8 @@ const (
 	TokenStopped
 	// TokenError is the Typ for errors reported by, for example, Lexer.Errorf.
 	TokenError
+	// TokenWarning is the Typ for warnings.
+	TokenWarning
 	// TokenEOF is returned once per file, when the end of file has been reached.
 	TokenEOF
 )
@@ -33,6 +35,8 @@ const (
 func (i Token) String() string {
 	switch i.Typ {
 	case TokenError:
+		return i.Val
+	case TokenWarning:
 		return i.Val
 	case TokenEOF:
 		return "EOF"

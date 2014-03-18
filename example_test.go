@@ -34,7 +34,7 @@ string = "Hello world!"
 	// filename:7 [2]"string"
 	// filename:7 [3]"="
 	// filename:7 [5]""Hello world!""
-	// filename:8 [-3]"EOF"
+	// filename:8 [-4]"EOF"
 }
 
 // Start parsing with this.

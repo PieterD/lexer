@@ -129,6 +129,11 @@ func (l *Lexer) Errorf(format string, args ...interface{}) StateFn {
 	return nil
 }
 
+// Emit a Warning token.
+func (l *Lexer) Warningf(format string, args ...interface{}) {
+	l.EmitString(TokenWarning, fmt.Sprintf(format, args...))
+}
+
 // Return true if the lexer has reached the end of the file.
 func (l *Lexer) Eof() bool {
 	if l.mark.pos >= len(l.input) {
