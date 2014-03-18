@@ -6,6 +6,7 @@ import (
 
 func TestBasic(t *testing.T) {
 	l := New("test", "ABtestingXYXYZ\nline2", nil)
+	start := l.Mark()
 	if l.Next() != 'A' || l.Next() != 'B' {
 		t.Fatalf("Next didn't return expected value")
 	}
@@ -64,5 +65,21 @@ func TestBasic(t *testing.T) {
 	l.Unmark(stored)
 	if l.mark.line != 1 {
 		t.Fatalf("Wrong line")
+	}
+	//if l.ExceptRun("Q") == 0 {
+	//	t.Fatalf("Bad ExceptRun")
+	//}
+	l.Unmark(start)
+	if !l.String("ABtestingXYXYZ\nline2") {
+		t.Fatalf("String failed")
+	}
+	if l.Next() != Eof {
+		t.Fatalf("Expected Eof")
+	}
+	if l.Accept("\n") {
+		t.Fatalf("Did not expect a successful accept")
+	}
+	if l.Except("\n") {
+		t.Fatalf("Did not expect a successful except")
 	}
 }

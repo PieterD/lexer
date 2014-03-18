@@ -207,6 +207,9 @@ func (l *Lexer) AcceptRun(valid string) (acceptnum int) {
 
 func not(in func(rune) bool) func(rune) bool {
 	return func(char rune) bool {
+		if char == Eof {
+			return false
+		}
 		return !in(char)
 	}
 }
