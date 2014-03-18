@@ -215,11 +215,14 @@ func not(in func(rune) bool) func(rune) bool {
 }
 
 // Read one character, but only if it is NOT one of the characters in the given string.
+// If Eof is reached, Except fails regardless of what the given string is.
 func (l *Lexer) Except(valid string) bool {
 	return l.One(not(acceptAny(valid)))
 }
 
 // Read as many characters as possible, but only characters that do NOT exist in the given string.
+// If Eof is reached, ExceptRun stops as though it found a successful character.
+// Thus, ExceptRun("") accepts everything until Eof.
 func (l *Lexer) ExceptRun(valid string) (acceptnum int) {
 	return l.Run(not(acceptAny(valid)))
 }

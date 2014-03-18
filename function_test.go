@@ -82,4 +82,9 @@ func TestBasic(t *testing.T) {
 	if l.Except("\n") {
 		t.Fatalf("Did not expect a successful except")
 	}
+	l.Unmark(start)
+	l.ExceptRun("")
+	if l.Next() != Eof {
+		t.Fatalf("Expected Eof after ExceptRun(\"\")")
+	}
 }
