@@ -16,7 +16,7 @@ const (
 func symbolState(l *Lexer) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
-	if l.Peek() == Eof {
+	if l.Eof() {
 		return l.EmitEof()
 	}
 	ok := l.ExceptRun(" =")
@@ -54,7 +54,7 @@ func afterOperatorState(l *Lexer) StateFn {
 func stringState(l *Lexer) StateFn {
 	for {
 		l.ExceptRun("\"\\")
-		if l.Peek() == Eof {
+		if l.Eof() {
 			return l.Errorf("EOF in the middle of a string!")
 		}
 		if l.Accept("\"") {
