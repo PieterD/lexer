@@ -19,10 +19,8 @@ type TokenType int
 const (
 	// TokenEmpty is the TokenType with value 0.
 	// Any zero-valued token will have this as its Typ.
+	// It is also returned when the lexer has stopped (by an error, or Eof)
 	TokenEmpty TokenType = -iota
-	// TokenStopped is contained by tokens returned by Lexer.Token when
-	// the lexer has stopped (by an error, or Eof)
-	TokenStopped
 	// TokenError is the Typ for errors reported by, for example, Lexer.Errorf.
 	TokenError
 	// TokenWarning is the Typ for warnings.

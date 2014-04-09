@@ -43,7 +43,7 @@ func New(name string, input string, start_state StateFn) *Lexer {
 }
 
 // Spawn a goroutine which keeps sending tokens on the returned channel,
-// until TokenStopped would be encountered.
+// until TokenEmpty would be encountered.
 func (l *Lexer) Go() <-chan Token {
 	go func() {
 		defer close(l.tokens)
@@ -63,7 +63,7 @@ func (l *Lexer) Token() Token {
 		select {
 		case token, ok := <-l.tokens:
 			if !ok {
-				return Token{TokenStopped, "", l.name, l.mark.line}
+				return Token{TokenEmpty, "", "", 0}
 			}
 			return token
 		default:

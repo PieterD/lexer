@@ -95,7 +95,7 @@ barbaz="Hello world";
 		Token{TokenString, "\"Hello world\"", "anonymous", 3},
 		Token{TokenSemi, ";", "anonymous", 3},
 		Token{TokenEOF, "EOF", "anonymous", 4},
-		Token{TokenStopped, "", "anonymous", 4},
+		Token{TokenEmpty, "", "", 0},
 	}
 	l := New("anonymous", text, symbolState)
 	for i, expected := range tokens {
@@ -109,10 +109,8 @@ barbaz="Hello world";
 	tokenchan := l.Go()
 	for i, expected := range tokens {
 		token := <-tokenchan
-		if !(token.Typ == TokenEmpty && expected.Typ == TokenStopped) {
-			if token != expected {
-				t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
-			}
+		if token != expected {
+			t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
 		}
 	}
 }
