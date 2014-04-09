@@ -114,3 +114,30 @@ barbaz="Hello world";
 		}
 	}
 }
+
+func TestLexTestBig(t *testing.T) {
+	lt := LexTest(t, symbolState, `
+hello="world";
+num=500;
+`)
+	lt.Expect(TokenSymbol, "hello", 2)
+	lt.Expect(TokenEquals, "=", 2)
+	lt.Expect(TokenString, "\"world\"", 2)
+	lt.Expect(TokenSemi, ";", 2)
+	lt.Expect(TokenSymbol, "num", 3)
+	lt.Expect(TokenEquals, "=", 3)
+	lt.Expect(TokenNumber, "500", 3)
+	lt.Expect(TokenSemi, ";", 3)
+	lt.Expect(TokenEOF, "EOF", 4)
+	lt.Expect(TokenEmpty, "", 0)
+	lt.Expect(TokenEmpty, "", 0)
+}
+
+func TestLexTestSmall(t *testing.T) {
+	s := afterOperatorState
+	LexTest(t, s, `"hello"`).Expect(TokenString, `"hello"`, 1)
+	LexTest(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
+	LexTest(t, s, `"he\!llo"`).Expect(TokenError, `Expected a known escape character (\ or "), instead of: !`, 1)
+	LexTest(t, s, `"hello`).Expect(TokenError, `EOF in the middle of a string!`, 1)
+}
+
