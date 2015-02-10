@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-type lexTest struct {
+type LexTester struct {
 	l *Lexer
 	t *testing.T
 	n int
@@ -13,12 +13,12 @@ type lexTest struct {
 // Testing lexers involves some boiler plate.
 // LexTest returns a struct value that can be used to easily
 // test your lexer for correctness.
-func LexTest (t *testing.T, f StateFn, text string) *lexTest {
+func NewTester(t *testing.T, f StateFn, text string) *LexTester {
 	l := New("testing", text, f)
-	return &lexTest{l, t, 0}
+	return &LexTester{l, t, 0}
 }
 
-func (lt *lexTest) Expect(typ TokenType, val string, line int) *lexTest {
+func (lt *LexTester) Expect(typ TokenType, val string, line int) *LexTester {
 	lt.n++
 	tok := lt.l.Token()
 	if tok.Typ != typ {
@@ -32,4 +32,3 @@ func (lt *lexTest) Expect(typ TokenType, val string, line int) *lexTest {
 	}
 	return lt
 }
-

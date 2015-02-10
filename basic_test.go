@@ -116,7 +116,7 @@ barbaz="Hello world";
 }
 
 func TestLexTestBig(t *testing.T) {
-	lt := LexTest(t, symbolState, `
+	lt := NewTester(t, symbolState, `
 hello="world";
 num=500;
 `)
@@ -135,9 +135,8 @@ num=500;
 
 func TestLexTestSmall(t *testing.T) {
 	s := afterOperatorState
-	LexTest(t, s, `"hello"`).Expect(TokenString, `"hello"`, 1)
-	LexTest(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
-	LexTest(t, s, `"he\!llo"`).Expect(TokenError, `Expected a known escape character (\ or "), instead of: !`, 1)
-	LexTest(t, s, `"hello`).Expect(TokenError, `EOF in the middle of a string!`, 1)
+	NewTester(t, s, `"hello"`).Expect(TokenString, `"hello"`, 1)
+	NewTester(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
+	NewTester(t, s, `"he\!llo"`).Expect(TokenError, `Expected a known escape character (\ or "), instead of: !`, 1)
+	NewTester(t, s, `"hello`).Expect(TokenError, `EOF in the middle of a string!`, 1)
 }
-
