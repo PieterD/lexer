@@ -30,6 +30,11 @@ func (lt *LexTester) Expect(typ TokenType, val string, line int) *LexTester {
 	return lt
 }
 
+// Succeeds if the next token is an error with the given value and line.
+func (lt *LexTester) Error(val string, line int) *LexTester {
+	return lt.Expect(TokenError, val, line)
+}
+
 // Succeeds if the next token is the empty token.
 func (lt *LexTester) End() {
 	tok := lt.l.Token()
