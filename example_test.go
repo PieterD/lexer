@@ -38,7 +38,7 @@ string = "Hello world!"
 }
 
 // Start parsing with this.
-func state_base(l *lexinator.Lexer) lexinator.StateFn {
+func state_base(l *lexinator.LexInner) lexinator.StateFn {
 	// Ignore all whitespace.
 	l.Run(unicode.IsSpace)
 	l.Ignore()
@@ -58,7 +58,7 @@ func state_base(l *lexinator.Lexer) lexinator.StateFn {
 }
 
 // Parse a line comment.
-func state_comment_line(l *lexinator.Lexer) lexinator.StateFn {
+func state_comment_line(l *lexinator.LexInner) lexinator.StateFn {
 	// Eat up everything until end of line (or Eof)
 	l.ExceptRun("\n")
 	l.Emit(tokenComment)
@@ -75,7 +75,7 @@ func state_comment_line(l *lexinator.Lexer) lexinator.StateFn {
 // returns a statefn, which in turn will return the parent state
 // after its parsing is done.
 func state_comment_block(parent lexinator.StateFn) lexinator.StateFn {
-	return func(l *lexinator.Lexer) lexinator.StateFn {
+	return func(l *lexinator.LexInner) lexinator.StateFn {
 		if !l.Find("*/") {
 			// If closing statement couldn't be found, emit an error.
 			// Errorf always returns nil, so parsing is done after this.
@@ -88,7 +88,7 @@ func state_comment_block(parent lexinator.StateFn) lexinator.StateFn {
 }
 
 // Parse a variable name
-func state_variable(l *lexinator.Lexer) lexinator.StateFn {
+func state_variable(l *lexinator.LexInner) lexinator.StateFn {
 	if l.AcceptRun("abcdefghijklmnopqrstuvwxyz") == 0 {
 		return l.Errorf("Invalid variable name")
 	}
@@ -98,7 +98,7 @@ func state_variable(l *lexinator.Lexer) lexinator.StateFn {
 }
 
 // Parse an assignment operator
-func state_operator(l *lexinator.Lexer) lexinator.StateFn {
+func state_operator(l *lexinator.LexInner) lexinator.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept("=") {
@@ -109,7 +109,7 @@ func state_operator(l *lexinator.Lexer) lexinator.StateFn {
 }
 
 // Parse a value
-func state_value(l *lexinator.Lexer) lexinator.StateFn {
+func state_value(l *lexinator.LexInner) lexinator.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.AcceptRun("0123456789") > 0 {
@@ -123,7 +123,7 @@ func state_value(l *lexinator.Lexer) lexinator.StateFn {
 }
 
 // Parse a string
-func state_string(l *lexinator.Lexer) lexinator.StateFn {
+func state_string(l *lexinator.LexInner) lexinator.StateFn {
 	for {
 		l.ExceptRun("\"\\")
 		// Now we're either at a ", a \, or Eof.

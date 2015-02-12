@@ -2,13 +2,13 @@ package lexinator
 
 // Lexinator is the external type which emits tokens.
 type Lexinator struct {
-	lexer *Lexer
+	lexer *LexInner
 }
 
 // Create a new lexer.
 func New(name string, input string, start_state StateFn) Lexinator {
 	var ln Lexinator
-	ln.lexer = new(Lexer)
+	ln.lexer = new(LexInner)
 	l := ln.lexer
 	l.tokens = make(chan Token, 10)
 	l.state = start_state
