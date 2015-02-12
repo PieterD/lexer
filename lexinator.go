@@ -10,6 +10,7 @@ const (
 	Eof rune = -1
 )
 
+// Holds the state of the lexer.
 type Lexer struct {
 	tokens chan Token
 	state  StateFn
@@ -28,12 +29,14 @@ type Mark struct {
 	width int
 }
 
+// StateFn is a function that takes a Lexer and returns a StateFn.
+// It represents a single state in the Lexer.
 type StateFn func(*Lexer) StateFn
 
 // Create a new lexer.
 func New(name string, input string, start_state StateFn) *Lexer {
 	l := new(Lexer)
-	l.tokens = make(chan Token, 3)
+	l.tokens = make(chan Token, 10)
 	l.state = start_state
 	l.name = name
 	l.input = input
@@ -57,7 +60,9 @@ func (l *Lexer) Go() <-chan Token {
 	return l.tokens
 }
 
-// Get an Token from the Lexer.
+// Get a Token from the Lexer.
+// Please note that only 10 tokens can be emitted in a single lex function.
+// If you wish to emite more per function, use the Go method.
 func (l *Lexer) Token() Token {
 	for {
 		select {
@@ -76,7 +81,7 @@ func (l *Lexer) Token() Token {
 	panic("not reached")
 }
 
-// Return the length of the token gathered so far
+// Return the length of the token gathered so far.
 func (l *Lexer) Len() int {
 	return l.mark.pos - l.mark.start
 }
@@ -89,6 +94,9 @@ func (l *Lexer) Get() string {
 
 // Get the last character accepted into the token.
 func (l *Lexer) Last() rune {
+	if l.Len() == 0 {
+		return Eof
+	}
 	r, _ := utf8.DecodeLastRuneInString(l.Get())
 	return r
 }
@@ -146,6 +154,7 @@ func (l *Lexer) Eof() bool {
 func (l *Lexer) Next() (char rune) {
 	if l.Eof() {
 		l.mark.width = 0
+		char = Eof
 		return Eof
 	}
 	char, l.mark.width = utf8.DecodeRuneInString(l.input[l.mark.pos:])

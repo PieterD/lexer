@@ -76,6 +76,9 @@ func TestBasic(t *testing.T) {
 	if !l.String("ABtestingXYXYZ\nline2") {
 		t.Fatalf("String failed")
 	}
+	if l.Last() != '2' {
+		t.Fatalf("Expected '2' from Last, got '%c'", l.Last())
+	}
 	if !l.Eof() {
 		t.Fatalf("Expected Eof to return true")
 	}
@@ -92,5 +95,9 @@ func TestBasic(t *testing.T) {
 	l.ExceptRun("")
 	if l.Next() != Eof {
 		t.Fatalf("Expected Eof after ExceptRun(\"\")")
+	}
+	l.Ignore()
+	if l.Last() != Eof {
+		t.Fatalf("Expected Eof from Last, got %c", l.Last())
 	}
 }
