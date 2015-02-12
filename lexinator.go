@@ -18,6 +18,7 @@ type Lexer struct {
 	input  string
 	mark   Mark
 	prev   Mark
+	going  bool
 }
 
 // The Mark type (used by Mark and Unmark) can be used to save
@@ -48,6 +49,7 @@ func New(name string, input string, start_state StateFn) *Lexer {
 // Spawn a goroutine which keeps sending tokens on the returned channel,
 // until TokenEmpty would be encountered.
 func (l *Lexer) Go() <-chan Token {
+	l.going = true
 	go func() {
 		defer close(l.tokens)
 		for {
@@ -64,6 +66,10 @@ func (l *Lexer) Go() <-chan Token {
 // Please note that only 10 tokens can be emitted in a single lex function.
 // If you wish to emite more per function, use the Go method.
 func (l *Lexer) Token() Token {
+	if l.going {
+		return Token{}
+	}
+
 	for {
 		select {
 		case token, ok := <-l.tokens:

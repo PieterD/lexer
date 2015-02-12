@@ -107,6 +107,9 @@ barbaz="Hello world";
 	// Test Go
 	l = New("anonymous", text, symbolState)
 	tokenchan := l.Go()
+	if l.Token().Typ != 0 {
+		t.Fatalf("Expected Token to return empty token after Go is called")
+	}
 	for i, expected := range tokens {
 		token := <-tokenchan
 		if token != expected {
