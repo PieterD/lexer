@@ -5,7 +5,8 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	l := New("test", "ABtestingXYXYZ\nline2", nil)
+	ln := New("test", "ABtestingXYXYZ\nline2", nil)
+	l := ln.lexer
 	start := l.Mark()
 	if l.Next() != 'A' || l.Next() != 'B' {
 		t.Fatalf("Next didn't return expected value")

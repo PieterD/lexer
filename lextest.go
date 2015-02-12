@@ -5,7 +5,7 @@ import (
 )
 
 type LexTester struct {
-	l *Lexer
+	l Lexinator
 	t *testing.T
 	n int
 }

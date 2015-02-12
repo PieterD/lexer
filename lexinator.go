@@ -10,6 +10,10 @@ const (
 	Eof rune = -1
 )
 
+type Lexinator struct {
+	lexer *Lexer
+}
+
 // Holds the state of the lexer.
 type Lexer struct {
 	tokens chan Token
@@ -35,20 +39,23 @@ type Mark struct {
 type StateFn func(*Lexer) StateFn
 
 // Create a new lexer.
-func New(name string, input string, start_state StateFn) *Lexer {
-	l := new(Lexer)
+func New(name string, input string, start_state StateFn) Lexinator {
+	var ln Lexinator
+	ln.lexer = new(Lexer)
+	l := ln.lexer
 	l.tokens = make(chan Token, 10)
 	l.state = start_state
 	l.name = name
 	l.input = input
 	l.mark.line = 1
 	l.prev.line = 1
-	return l
+	return ln
 }
 
 // Spawn a goroutine which keeps sending tokens on the returned channel,
 // until TokenEmpty would be encountered.
-func (l *Lexer) Go() <-chan Token {
+func (ln Lexinator) Go() <-chan Token {
+	l := ln.lexer
 	l.going = true
 	go func() {
 		defer close(l.tokens)
@@ -65,7 +72,8 @@ func (l *Lexer) Go() <-chan Token {
 // Get a Token from the Lexer.
 // Please note that only 10 tokens can be emitted in a single lex function.
 // If you wish to emite more per function, use the Go method.
-func (l *Lexer) Token() Token {
+func (ln Lexinator) Token() Token {
+	l := ln.lexer
 	if l.going {
 		return Token{}
 	}
