@@ -135,8 +135,8 @@ num=500;
 	lt.Expect(TokenNumber, "500", 3)
 	lt.Expect(TokenSemi, ";", 3)
 	lt.Expect(TokenEOF, "EOF", 4)
-	lt.Expect(TokenEmpty, "", 0)
-	lt.Expect(TokenEmpty, "", 0)
+	lt.End()
+	lt.End()
 }
 
 func TestLexTestSmall(t *testing.T) {
@@ -148,7 +148,14 @@ func TestLexTestSmall(t *testing.T) {
 }
 
 func TestLexTooManyEmits(t *testing.T) {
-	NewTester(t, tooManyEmitsState, "").Error("Too many emits in a single stat function", 1)
+	tl := NewTester(t, generateWarningState, "")
+	tl.Warning("warning", 1)
+	tl.Error("Too many emits in a single stat function", 1)
+}
+
+func generateWarningState(l *LexInner) StateFn {
+	l.Warningf("warning")
+	return tooManyEmitsState
 }
 
 func tooManyEmitsState(l *LexInner) StateFn {

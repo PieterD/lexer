@@ -37,10 +37,12 @@ const (
 // Return a simple string representation of the value contained within the token.
 func (i Token) String() string {
 	switch i.Typ {
+	case TokenEmpty:
+		return "Empty Token"
 	case TokenError:
-		return i.Val
+		return "Error: " + i.Val
 	case TokenWarning:
-		return i.Val
+		return "Warning: " + i.Val
 	case TokenEOF:
 		return "EOF"
 	}

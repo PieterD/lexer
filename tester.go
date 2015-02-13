@@ -30,6 +30,11 @@ func (lt *Tester) Expect(typ TokenType, val string, line int) *Tester {
 	return lt
 }
 
+// Succeeds if the next token is a warning with the given value and line.
+func (lt *Tester) Warning(val string, line int) *Tester {
+	return lt.Expect(TokenWarning, val, line)
+}
+
 // Succeeds if the next token is an error with the given value and line.
 func (lt *Tester) Error(val string, line int) *Tester {
 	return lt.Expect(TokenError, val, line)
