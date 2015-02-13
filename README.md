@@ -1,4 +1,4 @@
-lexinator
+lexer
 =========
 
 A basic lexer toolkit

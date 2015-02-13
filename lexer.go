@@ -1,4 +1,4 @@
-package lexinator
+package lexer
 
 // Lexer is the external type which emits tokens.
 type Lexer struct {

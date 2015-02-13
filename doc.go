@@ -2,4 +2,4 @@
 // See https://www.youtube.com/watch?v=HxaD_trXwRE
 
 // Package Lexer implements a simple lexing toolkit.
-package lexinator
+package lexer
