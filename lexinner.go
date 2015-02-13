@@ -18,7 +18,6 @@ type LexInner struct {
 	input  string
 	mark   Mark
 	prev   Mark
-	going  bool
 }
 
 // The Mark type (used by Mark and Unmark) can be used to save

@@ -5,7 +5,7 @@ import (
 )
 
 type Tester struct {
-	l Lexer
+	l *Lexer
 	t *testing.T
 	n int
 }
