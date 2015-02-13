@@ -24,8 +24,9 @@ func (lt *Tester) Expect(typ TokenType, val string, line int) *Tester {
 	lt.n++
 	tok := lt.l.Token()
 	if tok.Typ != typ || tok.Val != val || tok.Line != line {
-		lt.t.Fatalf("Token %d: expected [typ:%d line:%d val:'%s'] got [typ:%d line:%d val:'%s']", lt.n,
-			typ, line, val, tok.Typ, tok.Line, tok.Val)
+		lt.t.Logf("Token %d:      got [typ:%2d line:%3d val:'%s']", lt.n, tok.Typ, tok.Line, tok.Val)
+		lt.t.Logf("Token %d: expected [typ:%2d line:%3d val:'%s']", lt.n, typ, line, val)
+		lt.t.Fatalf("Token %d Expect failed", lt.n)
 	}
 	return lt
 }
@@ -41,10 +42,6 @@ func (lt *Tester) Error(val string, line int) *Tester {
 }
 
 // Succeeds if the next token is the empty token.
-func (lt *Tester) End() {
-	tok := lt.l.Token()
-	if tok.Typ != TokenEmpty || tok.Val != "" || tok.Line != 0 {
-		lt.t.Fatalf("Token %d: expected end token, got [typ:%d line:%d val:'%s']", lt.n,
-			tok.Typ, tok.Line, tok.Val)
-	}
+func (lt *Tester) End() *Tester {
+	return lt.Expect(TokenEmpty, "", 0)
 }
