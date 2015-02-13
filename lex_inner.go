@@ -9,9 +9,8 @@ import (
 
 var errTooManyEmits = errors.New("Too many emits in a single stat function")
 
-const (
-	Eof rune = -1
-)
+// This is returned by next when there are no more characters to read.
+const Eof rune = -1
 
 // LexInner is the inner type which is used within StateFn to do the actual lexing.
 type LexInner struct {
@@ -109,6 +108,7 @@ func (l *LexInner) Eof() bool {
 }
 
 // Read a single character.
+// If there are no more characters, it will return Eof.
 func (l *LexInner) Next() (char rune) {
 	if l.Eof() {
 		l.mark.width = 0
