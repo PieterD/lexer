@@ -43,7 +43,7 @@ func (ln *Lexer) Go() <-chan Token {
 
 // Get a Token from the Lexer.
 // Please note that only 10 tokens can be emitted in a single state function.
-// If you wish to emite more per function, use the Go method.
+// If you wish to emit more per function, use the Go method.
 func (ln *Lexer) Token() Token {
 	if ln.going {
 		return Token{TokenEmpty, "", "", 0}

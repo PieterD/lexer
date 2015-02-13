@@ -10,7 +10,7 @@ const (
 	Eof rune = -1
 )
 
-// Lexer is the inner type which is used within StateFn to do the actual lexing.
+// LexInner is the inner type which is used within StateFn to do the actual lexing.
 type LexInner struct {
 	tokens chan Token
 	state  StateFn
@@ -29,8 +29,7 @@ type Mark struct {
 	width int
 }
 
-// StateFn is a function that takes a Lexer and returns a StateFn.
-// It represents a single state in the Lexer.
+// StateFn is a function that takes a LexInner and returns a StateFn.
 type StateFn func(*LexInner) StateFn
 
 // Return the length of the token gathered so far.
