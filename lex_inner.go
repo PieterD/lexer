@@ -1,10 +1,13 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"unicode/utf8"
 )
+
+var errTooManyEmits = errors.New("Too many emits in a single stat function")
 
 const (
 	Eof rune = -1
@@ -64,7 +67,11 @@ func (l *LexInner) Unmark(mark Mark) {
 
 // Emit a token with the given type and string.
 func (l *LexInner) EmitString(typ TokenType, str string) {
-	l.tokens <- Token{typ, str, l.name, l.mark.line}
+	select {
+	case l.tokens <- Token{typ, str, l.name, l.mark.line}:
+	default:
+		panic(errTooManyEmits)
+	}
 }
 
 // Emit the gathered token, given its type.
