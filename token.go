@@ -1,4 +1,4 @@
-package lexinator
+package lexer
 
 import "fmt"
 

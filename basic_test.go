@@ -1,4 +1,4 @@
-package lexinator
+package lexer
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ const (
 	TokenString
 )
 
-func symbolState(l *Lexer) StateFn {
+func symbolState(l *LexInner) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Eof() {
@@ -27,7 +27,7 @@ func symbolState(l *Lexer) StateFn {
 	return afterSymbolState
 }
 
-func afterSymbolState(l *Lexer) StateFn {
+func afterSymbolState(l *LexInner) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept("=") == false {
@@ -37,7 +37,7 @@ func afterSymbolState(l *Lexer) StateFn {
 	return afterOperatorState
 }
 
-func afterOperatorState(l *Lexer) StateFn {
+func afterOperatorState(l *LexInner) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept("0123456789") {
@@ -51,7 +51,7 @@ func afterOperatorState(l *Lexer) StateFn {
 	return l.Errorf("Expected constant number or string!")
 }
 
-func stringState(l *Lexer) StateFn {
+func stringState(l *LexInner) StateFn {
 	for {
 		l.ExceptRun("\"\\")
 		if l.Eof() {
@@ -70,7 +70,7 @@ func stringState(l *Lexer) StateFn {
 	panic("not reached")
 }
 
-func semiState(l *Lexer) StateFn {
+func semiState(l *LexInner) StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept(";") {
