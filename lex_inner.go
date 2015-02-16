@@ -21,6 +21,7 @@ type LexInner struct {
 	input  string
 	mark   Mark
 	prev   Mark
+	async  bool
 }
 
 // The Mark type (used by Mark and Unmark) can be used to save
@@ -67,10 +68,15 @@ func (l *LexInner) Unmark(mark Mark) {
 
 // Emit a token with the given type and string.
 func (l *LexInner) EmitString(typ TokenType, str string) {
-	select {
-	case l.tokens <- Token{typ, str, l.name, l.mark.line}:
-	default:
-		panic(errTooManyEmits)
+	tok := Token{typ, str, l.name, l.mark.line}
+	if l.async {
+		l.tokens <- tok
+	} else {
+		select {
+		case l.tokens <- tok:
+		default:
+			panic(errTooManyEmits)
+		}
 	}
 }
 

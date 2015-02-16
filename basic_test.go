@@ -98,8 +98,12 @@ barbaz="Hello world";
 		Token{TokenEmpty, "", "", 0},
 	}
 	l := New("anonymous", text, symbolState)
+	it := l.Iterate()
+	if l.Iterate() != nil {
+		t.Fatalf("Second Iterate should return nil")
+	}
 	for i, expected := range tokens {
-		token := l.Token()
+		token := it.Token()
 		if token != expected {
 			t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
 		}
@@ -109,9 +113,6 @@ barbaz="Hello world";
 	tokenchan := l.Go()
 	if l.Go() != nil {
 		t.Fatalf("Second go should return nil")
-	}
-	if l.Token().Typ != 0 {
-		t.Fatalf("Expected Token to return empty token after Go is called")
 	}
 	for i, expected := range tokens {
 		token := <-tokenchan

@@ -6,6 +6,14 @@ package lexer
 // off the channel directly.
 const MaxEmitsInFunction = 10
 
+// Generates tokens asynchronously. See Lexer.Go
+type Channel <-chan Token
+
+// Generates tokens synchronously. See Lexer.Iterate
+type Iterator struct {
+	l *LexInner
+}
+
 // Lexer is the external type which emits tokens.
 type Lexer struct {
 	lexer *LexInner
@@ -28,13 +36,14 @@ func New(name string, input string, start_state StateFn) *Lexer {
 
 // Spawn a goroutine which keeps sending tokens on the returned channel,
 // until TokenEmpty would be encountered.
-// If Go has already been called, it will return nil.
-func (ln *Lexer) Go() <-chan Token {
+// If Go or Iterate has already been called, it will return nil.
+func (ln *Lexer) Go() Channel {
 	if ln.going {
 		return nil
 	}
 	ln.going = true
 	l := ln.lexer
+	l.async = true
 	go func() {
 		defer close(l.tokens)
 		for {
@@ -47,14 +56,23 @@ func (ln *Lexer) Go() <-chan Token {
 	return l.tokens
 }
 
+// Where Go starts a goroutine, Iterate returns an iterator.
+// When using an Iterator, only MaxEmitsInFunction emits may be done
+// in any single state function, or an error will be reported.
+// If Go or Iterate has already been called, it will return nil.
+func (ln *Lexer) Iterate() *Iterator {
+	if ln.going {
+		return nil
+	}
+	ln.going = true
+	return &Iterator{ln.lexer}
+}
+
 // Get a Token from the Lexer.
 // Please note that only 10 tokens can be emitted in a single state function.
 // If you wish to emit more per function, use the Go method.
-func (ln *Lexer) Token() (token Token) {
-	if ln.going {
-		return Token{TokenEmpty, "", "", 0}
-	}
-	l := ln.lexer
+func (it Iterator) Token() (token Token) {
+	l := it.l
 
 	defer func() {
 		err := recover()
