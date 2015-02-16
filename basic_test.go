@@ -98,8 +98,12 @@ barbaz="Hello world";
 		Token{TokenEmpty, "", "", 0},
 	}
 	l := New("anonymous", text, symbolState)
+	it := l.Iterate()
+	if l.Iterate() != nil {
+		t.Fatalf("Second Iterate should return nil")
+	}
 	for i, expected := range tokens {
-		token := l.Token()
+		token := it.Token()
 		if token != expected {
 			t.Fatalf("Token %d invalid: %#v expected %#v", i, token, expected)
 		}
@@ -107,8 +111,8 @@ barbaz="Hello world";
 	// Test Go
 	l = New("anonymous", text, symbolState)
 	tokenchan := l.Go()
-	if l.Token().Typ != 0 {
-		t.Fatalf("Expected Token to return empty token after Go is called")
+	if l.Go() != nil {
+		t.Fatalf("Second go should return nil")
 	}
 	for i, expected := range tokens {
 		token := <-tokenchan
@@ -132,8 +136,8 @@ num=500;
 	lt.Expect(TokenNumber, "500", 3)
 	lt.Expect(TokenSemi, ";", 3)
 	lt.Expect(TokenEOF, "EOF", 4)
-	lt.Expect(TokenEmpty, "", 0)
-	lt.Expect(TokenEmpty, "", 0)
+	lt.End()
+	lt.End()
 }
 
 func TestLexTestSmall(t *testing.T) {
@@ -142,4 +146,22 @@ func TestLexTestSmall(t *testing.T) {
 	NewTester(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
 	NewTester(t, s, `"he\!llo"`).Expect(TokenError, `Expected a known escape character (\ or "), instead of: !`, 1)
 	NewTester(t, s, `"hello`).Expect(TokenError, `EOF in the middle of a string!`, 1)
+}
+
+func TestLexTooManyEmits(t *testing.T) {
+	tl := NewTester(t, generateWarningState, "")
+	tl.Warning("warning", 1)
+	tl.Error("Too many emits in a single stat function", 1)
+}
+
+func generateWarningState(l *LexInner) StateFn {
+	l.Warningf("warning")
+	return tooManyEmitsState
+}
+
+func tooManyEmitsState(l *LexInner) StateFn {
+	for i := 0; i <= MaxEmitsInFunction; i++ {
+		l.Emit(1)
+	}
+	return nil
 }

@@ -1,16 +1,19 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
-const (
-	Eof rune = -1
-)
+var errTooManyEmits = errors.New("Too many emits in a single stat function")
 
-// Lexer is the inner type which is used within StateFn to do the actual lexing.
+// This is returned by next when there are no more characters to read.
+const Eof rune = -1
+
+// LexInner is the inner type which is used within StateFn to do the actual lexing.
 type LexInner struct {
 	tokens chan Token
 	state  StateFn
@@ -18,6 +21,7 @@ type LexInner struct {
 	input  string
 	mark   Mark
 	prev   Mark
+	async  bool
 }
 
 // The Mark type (used by Mark and Unmark) can be used to save
@@ -29,8 +33,7 @@ type Mark struct {
 	width int
 }
 
-// StateFn is a function that takes a Lexer and returns a StateFn.
-// It represents a single state in the Lexer.
+// StateFn is a function that takes a LexInner and returns a StateFn.
 type StateFn func(*LexInner) StateFn
 
 // Return the length of the token gathered so far.
@@ -65,7 +68,16 @@ func (l *LexInner) Unmark(mark Mark) {
 
 // Emit a token with the given type and string.
 func (l *LexInner) EmitString(typ TokenType, str string) {
-	l.tokens <- Token{typ, str, l.name, l.mark.line}
+	tok := Token{typ, str, l.name, l.mark.line}
+	if l.async {
+		l.tokens <- tok
+	} else {
+		select {
+		case l.tokens <- tok:
+		default:
+			panic(errTooManyEmits)
+		}
+	}
 }
 
 // Emit the gathered token, given its type.
@@ -103,6 +115,7 @@ func (l *LexInner) Eof() bool {
 }
 
 // Read a single character.
+// If there are no more characters, it will return Eof.
 func (l *LexInner) Next() (char rune) {
 	if l.Eof() {
 		l.mark.width = 0
@@ -115,6 +128,19 @@ func (l *LexInner) Next() (char rune) {
 		l.mark.line++
 	}
 	return char
+}
+
+// Read n characters.
+// Returns the number of characters read.
+// If it returns less than n, it will have reached EOF.
+func (l *LexInner) Skip(n int) int {
+	i := 0
+	for i = 0; i < n; i++ {
+		if l.Next() == Eof {
+			return i
+		}
+	}
+	return i
 }
 
 // Undo the last Next.
@@ -186,6 +212,15 @@ func (l *LexInner) Run(f func(rune) bool) (acceptnum int) {
 		acceptnum++
 	}
 	return
+}
+
+// Accepts any whitespace (unicode.IsSpace), except for whitespace in except.
+// For instance, Whitespace("\n") will accept all whitespace except newlines.
+// Returns the number of runes read.
+func (l *LexInner) Whitespace(except string) (acceptnum int) {
+	return l.Run(func(r rune) bool {
+		return unicode.IsSpace(r) && !strings.ContainsRune(except, r)
+	})
 }
 
 func acceptAny(valid string) func(rune) bool {

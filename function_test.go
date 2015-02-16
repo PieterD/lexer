@@ -101,4 +101,53 @@ func TestBasic(t *testing.T) {
 	if l.Last() != Eof {
 		t.Fatalf("Expected Eof from Last, got %c", l.Last())
 	}
+	l.Unmark(start)
+	n := l.Skip(2)
+	if n != 2 {
+		t.Fatalf("Expected Skip(2) to return 2, got %d", n)
+	}
+	if l.Get() != "AB" {
+		t.Fatalf("Expected Skip(2) to return 'AB', got %s", l.Get())
+	}
+	l.ExceptRun("\n")
+	l.Next()
+	l.Ignore()
+	n = l.Skip(6)
+	if n != 5 {
+		t.Fatalf("Expected short skip to return 5, got %d", n)
+	}
+	if l.Get() != "line2" {
+		t.Fatalf("Expected skip to read 'line2', got %s", l.Get())
+	}
+}
+
+func TestWhitespace(t *testing.T) {
+	ln := New("test", "\t\thello \r\t\nworld\r  ", nil)
+	l := ln.lexer
+	n := l.Whitespace("")
+	if n != 2 {
+		t.Fatalf("Expected 2, got %d", n)
+	}
+	if !l.String("hello") {
+		t.Fatalf("Failed to get 'hello'")
+	}
+	n = l.Whitespace("\n")
+	if n != 3 {
+		t.Fatalf("Expected 3, got %d", n)
+	}
+	ch := l.Next()
+	if ch != '\n' {
+		t.Fatalf("Expected '\\n', got %d", ch)
+	}
+	if !l.String("world") {
+		t.Fatalf("Failed to get 'world'")
+	}
+	n = l.Whitespace("\n")
+	if n != 3 {
+		t.Fatalf("Expected 3, got %d", n)
+	}
+	ch = l.Next()
+	if ch != Eof {
+		t.Fatalf("Expected Eof, got %d", ch)
+	}
 }
