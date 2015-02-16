@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -205,6 +206,15 @@ func (l *LexInner) Run(f func(rune) bool) (acceptnum int) {
 		acceptnum++
 	}
 	return
+}
+
+// Accepts any whitespace (unicode.IsSpace), except for whitespace in except.
+// For instance, Whitespace("\n") will accept all whitespace except newlines.
+// Returns the number of runes read.
+func (l *LexInner) Whitespace(except string) (acceptnum int) {
+	return l.Run(func(r rune) bool {
+		return unicode.IsSpace(r) && !strings.ContainsRune(except, r)
+	})
 }
 
 func acceptAny(valid string) func(rune) bool {

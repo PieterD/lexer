@@ -120,3 +120,34 @@ func TestBasic(t *testing.T) {
 		t.Fatalf("Expected skip to read 'line2', got %s", l.Get())
 	}
 }
+
+func TestWhitespace(t *testing.T) {
+	ln := New("test", "\t\thello \r\t\nworld\r  ", nil)
+	l := ln.lexer
+	n := l.Whitespace("")
+	if n != 2 {
+		t.Fatalf("Expected 2, got %d", n)
+	}
+	if !l.String("hello") {
+		t.Fatalf("Failed to get 'hello'")
+	}
+	n = l.Whitespace("\n")
+	if n != 3 {
+		t.Fatalf("Expected 3, got %d", n)
+	}
+	ch := l.Next()
+	if ch != '\n' {
+		t.Fatalf("Expected '\\n', got %d", ch)
+	}
+	if !l.String("world") {
+		t.Fatalf("Failed to get 'world'")
+	}
+	n = l.Whitespace("\n")
+	if n != 3 {
+		t.Fatalf("Expected 3, got %d", n)
+	}
+	ch = l.Next()
+	if ch != Eof {
+		t.Fatalf("Expected Eof, got %d", ch)
+	}
+}
