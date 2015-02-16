@@ -101,4 +101,22 @@ func TestBasic(t *testing.T) {
 	if l.Last() != Eof {
 		t.Fatalf("Expected Eof from Last, got %c", l.Last())
 	}
+	l.Unmark(start)
+	n := l.Skip(2)
+	if n != 2 {
+		t.Fatalf("Expected Skip(2) to return 2, got %d", n)
+	}
+	if l.Get() != "AB" {
+		t.Fatalf("Expected Skip(2) to return 'AB', got %s", l.Get())
+	}
+	l.ExceptRun("\n")
+	l.Next()
+	l.Ignore()
+	n = l.Skip(6)
+	if n != 5 {
+		t.Fatalf("Expected short skip to return 5, got %d", n)
+	}
+	if l.Get() != "line2" {
+		t.Fatalf("Expected skip to read 'line2', got %s", l.Get())
+	}
 }

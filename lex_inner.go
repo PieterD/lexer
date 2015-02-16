@@ -123,6 +123,19 @@ func (l *LexInner) Next() (char rune) {
 	return char
 }
 
+// Read n characters.
+// Returns the number of characters read.
+// If it returns less than n, it will have reached EOF.
+func (l *LexInner) Skip(n int) int {
+	i := 0
+	for i = 0; i < n; i++ {
+		if l.Next() == Eof {
+			return i
+		}
+	}
+	return i
+}
+
 // Undo the last Next.
 // This is probably won't work after calling any other lexer functions.
 // If you need to undo more, use Mark and Unmark.
