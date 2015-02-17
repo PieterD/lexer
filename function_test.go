@@ -151,3 +151,62 @@ func TestWhitespace(t *testing.T) {
 		t.Fatalf("Expected Eof, got %d", ch)
 	}
 }
+
+func TestReplace(t *testing.T) {
+	ln := New("test", "Hello, world!", nil)
+	l := ln.lexer
+	start := l.Mark()
+	if !l.String("Hello") {
+		t.Fatalf("Expected 'Hello'")
+	}
+	mark := l.Mark()
+	if !l.String(", ") {
+		t.Fatalf("Expected ', '")
+	}
+	// Without any replaces
+	if l.ReplaceGet() != "Hello, " {
+		t.Fatalf("Expected 'Hello, '")
+	}
+
+	l.Replace(mark, "!")
+	mark = l.Mark()
+	if l.Next() != 'w' {
+		t.Fatalf("Expected 'w'")
+	}
+	l.Replace(mark, "W")
+	if !l.String("orld!") {
+		t.Fatalf("Expected 'orld!")
+	}
+	if l.ReplaceGet() != "Hello!World!" {
+		t.Fatalf("Expected 'Hello!World!', got '%s'", l.ReplaceGet())
+	}
+
+	// Undo that last replace
+	l.Unmark(mark)
+	if !l.String("world!") {
+		t.Fatalf("Expected 'world!'")
+	}
+	if l.ReplaceGet() != "Hello!world!" {
+		t.Fatalf("Expected 'Hello!world!', got '%s'", l.ReplaceGet())
+	}
+
+	// Back to the start, prepend something.
+	l.Unmark(start)
+	l.Replace(start, "Start, ")
+	if !l.String("Hello") {
+		t.Fatalf("Expected 'Hello'")
+	}
+	if l.ReplaceGet() != "Start, Hello" {
+		t.Fatalf("Expected 'Start, Hello' got '%s''", l.ReplaceGet())
+	}
+
+	// Append something
+	l.Unmark(start)
+	if !l.String("Hello") {
+		t.Fatalf("Expected 'Hello'")
+	}
+	l.Replace(l.Mark(), ", end!")
+	if l.ReplaceGet() != "Hello, end!" {
+		t.Fatalf("Expected 'Hello, end!' got '%s'", l.ReplaceGet())
+	}
+}

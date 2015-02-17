@@ -27,10 +27,20 @@ type LexInner struct {
 // The Mark type (used by Mark and Unmark) can be used to save
 // the current state of the lexer, and restore it later.
 type Mark struct {
-	pos   int
-	line  int
-	start int
-	width int
+	pos     int
+	line    int
+	start   int
+	width   int
+	replace *Replacer
+}
+
+func (mark Mark) rpos() int {
+	return mark.pos - mark.start
+}
+
+type Replacer struct {
+	start, end Mark
+	with       string
 }
 
 // StateFn is a function that takes a LexInner and returns a StateFn.
@@ -66,6 +76,34 @@ func (l *LexInner) Unmark(mark Mark) {
 	l.mark = mark
 }
 
+// Replace the text from the start Mark to the current position with the given string.
+// With may be a different length than the string being replaced, but this change
+// will not be reflected by functions like Len and Get.
+// Call ReplaceGet to get the token including its replaces. This is how it will be sent by Emit.
+// The replace is part of the current Mark, so Unmarking to before a replace was done will
+// remove the replace.
+func (l *LexInner) Replace(start Mark, with string) {
+	if with != "" {
+		l.mark.replace = &Replacer{start, l.mark, with}
+	}
+}
+
+// Get the current token with all replaces included.
+// This can be expensive, if you have many replaces.
+// Without any replaces, it is identical to Get.
+func (l *LexInner) ReplaceGet() string {
+	return replaceGet(l.Get(), l.mark.replace)
+}
+
+func replaceGet(cur string, replace *Replacer) string {
+	if replace == nil {
+		return cur
+	}
+	start := replace.start
+	end := replace.end
+	return replaceGet(cur[:start.rpos()]+replace.with+cur[end.rpos():], replace.end.replace)
+}
+
 // Emit a token with the given type and string.
 func (l *LexInner) EmitString(typ TokenType, str string) {
 	tok := Token{typ, str, l.name, l.mark.line}
@@ -81,9 +119,9 @@ func (l *LexInner) EmitString(typ TokenType, str string) {
 }
 
 // Emit the gathered token, given its type.
-// Emits the result of Get, then calls Ignore.
+// Emits the result of ReplaceGet, then calls Ignore.
 func (l *LexInner) Emit(typ TokenType) {
-	l.EmitString(typ, l.Get())
+	l.EmitString(typ, l.ReplaceGet())
 	l.Ignore()
 }
 
@@ -159,9 +197,11 @@ func (l *LexInner) Peek() rune {
 }
 
 // Ignore everything gathered about the token so far.
+// Also removes any Replaces.
 func (l *LexInner) Ignore() {
 	l.mark.start = l.mark.pos
 	l.mark.width = 0
+	l.mark.replace = nil
 }
 
 // Retry everything since starting this token.
