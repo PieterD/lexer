@@ -185,6 +185,9 @@ func (l *LexInner) Skip(n int) int {
 // This is probably won't work after calling any other lexer functions.
 // If you need to undo more, use Mark and Unmark.
 func (l *LexInner) Back() {
+	if l.Last() == '\n' {
+		l.mark.line--
+	}
 	l.mark.pos -= l.mark.width
 	l.mark.width = 0
 }
