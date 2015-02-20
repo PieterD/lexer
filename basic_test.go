@@ -94,7 +94,7 @@ barbaz="Hello world";
 		Token{TokenEquals, "=", "anonymous", 3},
 		Token{TokenString, "\"Hello world\"", "anonymous", 3},
 		Token{TokenSemi, ";", "anonymous", 3},
-		Token{TokenEOF, "EOF", "anonymous", 4},
+		Token{TokenEOF, "EOF", "anonymous", 3},
 		Token{TokenEmpty, "", "", 0},
 	}
 	l := New("anonymous", text, symbolState)
@@ -135,7 +135,7 @@ num=500;
 	lt.Expect(TokenEquals, "=", 3)
 	lt.Expect(TokenNumber, "500", 3)
 	lt.Expect(TokenSemi, ";", 3)
-	lt.Expect(TokenEOF, "EOF", 4)
+	lt.Expect(TokenEOF, "EOF", 3)
 	lt.End()
 	lt.End()
 }

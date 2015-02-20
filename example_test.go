@@ -30,12 +30,12 @@ string = "Hello world!"
 	// Output: filename:2 [1]"/* comment */"
 	// filename:3 [2]"pie"
 	// filename:3 [3]"="
-	// filename:4 [4]"314"
-	// filename:6 [1]"// comment"
-	// filename:7 [2]"string"
-	// filename:7 [3]"="
-	// filename:7 [5]""Hello world!""
-	// filename:8 [-3]"EOF"
+	// filename:3 [4]"314"
+	// filename:4 [1]"// comment"
+	// filename:5 [2]"string"
+	// filename:5 [3]"="
+	// filename:5 [5]""Hello world!""
+	// filename:5 [-3]"EOF"
 }
 
 // Start parsing with this.
