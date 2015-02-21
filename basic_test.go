@@ -1,19 +1,22 @@
-package lexer
+package lexer_test
 
 import (
 	"testing"
 	"unicode"
+
+	"github.com/PieterD/lexer"
+	"github.com/PieterD/lexer/lextest"
 )
 
 const (
-	TokenSymbol TokenType = iota
+	TokenSymbol lexer.TokenType = iota
 	TokenEquals
 	TokenNumber
 	TokenSemi
 	TokenString
 )
 
-func symbolState(l *LexInner) StateFn {
+func symbolState(l *lexer.LexInner) lexer.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Eof() {
@@ -27,7 +30,7 @@ func symbolState(l *LexInner) StateFn {
 	return afterSymbolState
 }
 
-func afterSymbolState(l *LexInner) StateFn {
+func afterSymbolState(l *lexer.LexInner) lexer.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept("=") == false {
@@ -37,7 +40,7 @@ func afterSymbolState(l *LexInner) StateFn {
 	return afterOperatorState
 }
 
-func afterOperatorState(l *LexInner) StateFn {
+func afterOperatorState(l *lexer.LexInner) lexer.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept("0123456789") {
@@ -51,7 +54,7 @@ func afterOperatorState(l *LexInner) StateFn {
 	return l.Errorf("Expected constant number or string!")
 }
 
-func stringState(l *LexInner) StateFn {
+func stringState(l *lexer.LexInner) lexer.StateFn {
 	for {
 		l.ExceptRun("\"\\")
 		if l.Eof() {
@@ -67,10 +70,9 @@ func stringState(l *LexInner) StateFn {
 			}
 		}
 	}
-	panic("not reached")
 }
 
-func semiState(l *LexInner) StateFn {
+func semiState(l *lexer.LexInner) lexer.StateFn {
 	l.Run(unicode.IsSpace)
 	l.Ignore()
 	if l.Accept(";") {
@@ -85,19 +87,19 @@ func TestLexer(t *testing.T) {
 foo = 500;
 barbaz="Hello world";
 `
-	tokens := []Token{
-		Token{TokenSymbol, "foo", "anonymous", 2},
-		Token{TokenEquals, "=", "anonymous", 2},
-		Token{TokenNumber, "500", "anonymous", 2},
-		Token{TokenSemi, ";", "anonymous", 2},
-		Token{TokenSymbol, "barbaz", "anonymous", 3},
-		Token{TokenEquals, "=", "anonymous", 3},
-		Token{TokenString, "\"Hello world\"", "anonymous", 3},
-		Token{TokenSemi, ";", "anonymous", 3},
-		Token{TokenEOF, "EOF", "anonymous", 3},
-		Token{TokenEmpty, "", "", 0},
+	tokens := []lexer.Token{
+		lexer.Token{TokenSymbol, "foo", "anonymous", 2},
+		lexer.Token{TokenEquals, "=", "anonymous", 2},
+		lexer.Token{TokenNumber, "500", "anonymous", 2},
+		lexer.Token{TokenSemi, ";", "anonymous", 2},
+		lexer.Token{TokenSymbol, "barbaz", "anonymous", 3},
+		lexer.Token{TokenEquals, "=", "anonymous", 3},
+		lexer.Token{TokenString, "\"Hello world\"", "anonymous", 3},
+		lexer.Token{TokenSemi, ";", "anonymous", 3},
+		lexer.Token{lexer.TokenEOF, "EOF", "anonymous", 3},
+		lexer.Token{lexer.TokenEmpty, "", "", 0},
 	}
-	l := New("anonymous", text, symbolState)
+	l := lexer.New("anonymous", text, symbolState)
 	it := l.Iterate()
 	if l.Iterate() != nil {
 		t.Fatalf("Second Iterate should return nil")
@@ -109,7 +111,7 @@ barbaz="Hello world";
 		}
 	}
 	// Test Go
-	l = New("anonymous", text, symbolState)
+	l = lexer.New("anonymous", text, symbolState)
 	tokenchan := l.Go()
 	if l.Go() != nil {
 		t.Fatalf("Second go should return nil")
@@ -123,7 +125,7 @@ barbaz="Hello world";
 }
 
 func TestLexTestBig(t *testing.T) {
-	lt := NewTester(t, symbolState, `
+	lt := lextest.NewTester(t, symbolState, `
 hello="world";
 num=500;
 `)
@@ -135,32 +137,32 @@ num=500;
 	lt.Expect(TokenEquals, "=", 3)
 	lt.Expect(TokenNumber, "500", 3)
 	lt.Expect(TokenSemi, ";", 3)
-	lt.Expect(TokenEOF, "EOF", 3)
+	lt.Expect(lexer.TokenEOF, "EOF", 3)
 	lt.End()
 	lt.End()
 }
 
 func TestLexTestSmall(t *testing.T) {
 	s := afterOperatorState
-	NewTester(t, s, `"hello"`).Expect(TokenString, `"hello"`, 1)
-	NewTester(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
-	NewTester(t, s, `"he\!llo"`).Expect(TokenError, `Expected a known escape character (\ or "), instead of: !`, 1)
-	NewTester(t, s, `"hello`).Expect(TokenError, `EOF in the middle of a string!`, 1)
+	lextest.NewTester(t, s, `"hello"`).Expect(TokenString, `"hello"`, 1)
+	lextest.NewTester(t, s, `"he\"llo"`).Expect(TokenString, `"he\"llo"`, 1)
+	lextest.NewTester(t, s, `"he\!llo"`).Error(`Expected a known escape character (\ or "), instead of: !`, 1)
+	lextest.NewTester(t, s, `"hello`).Error(`EOF in the middle of a string!`, 1)
 }
 
 func TestLexTooManyEmits(t *testing.T) {
-	tl := NewTester(t, generateWarningState, "")
+	tl := lextest.NewTester(t, generateWarningState, "")
 	tl.Warning("warning", 1)
 	tl.Error("Too many emits in a single stat function", 1)
 }
 
-func generateWarningState(l *LexInner) StateFn {
+func generateWarningState(l *lexer.LexInner) lexer.StateFn {
 	l.Warningf("warning")
 	return tooManyEmitsState
 }
 
-func tooManyEmitsState(l *LexInner) StateFn {
-	for i := 0; i <= MaxEmitsInFunction; i++ {
+func tooManyEmitsState(l *lexer.LexInner) lexer.StateFn {
+	for i := 0; i <= lexer.MaxEmitsInFunction; i++ {
 		l.Emit(1)
 	}
 	return nil
