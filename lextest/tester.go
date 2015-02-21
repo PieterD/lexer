@@ -1,11 +1,13 @@
-package lexer
+package lextest
 
 import (
 	"testing"
+
+	"github.com/PieterD/lexer"
 )
 
 type Tester struct {
-	it *Iterator
+	it *lexer.Iterator
 	t  *testing.T
 	n  int
 }
@@ -13,14 +15,14 @@ type Tester struct {
 // Testing lexers involves some boiler plate.
 // LexTest returns a struct value that can be used to easily
 // test your lexer for correctness.
-func NewTester(t *testing.T, f StateFn, text string) *Tester {
-	it := New("testing", text, f).Iterate()
+func NewTester(t *testing.T, f lexer.StateFn, text string) *Tester {
+	it := lexer.New("testing", text, f).Iterate()
 	return &Tester{it, t, 0}
 }
 
 // Succeeds if the next token has the given type, value and line.
 // Calls t.Fatalf with an error otherwise.
-func (lt *Tester) Expect(typ TokenType, val string, line int) *Tester {
+func (lt *Tester) Expect(typ lexer.TokenType, val string, line int) *Tester {
 	lt.n++
 	tok := lt.it.Token()
 	if tok.Typ != typ || tok.Val != val || tok.Line != line {
@@ -33,15 +35,15 @@ func (lt *Tester) Expect(typ TokenType, val string, line int) *Tester {
 
 // Succeeds if the next token is a warning with the given value and line.
 func (lt *Tester) Warning(val string, line int) *Tester {
-	return lt.Expect(TokenWarning, val, line)
+	return lt.Expect(lexer.TokenWarning, val, line)
 }
 
 // Succeeds if the next token is an error with the given value and line.
 func (lt *Tester) Error(val string, line int) *Tester {
-	return lt.Expect(TokenError, val, line)
+	return lt.Expect(lexer.TokenError, val, line)
 }
 
 // Succeeds if the next token is the empty token.
 func (lt *Tester) End() *Tester {
-	return lt.Expect(TokenEmpty, "", 0)
+	return lt.Expect(lexer.TokenEmpty, "", 0)
 }
