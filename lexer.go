@@ -96,5 +96,4 @@ func (it Iterator) Token() (token Token) {
 			}
 		}
 	}
-	panic("not reached")
 }
