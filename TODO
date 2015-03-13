@@ -1,0 +1,5 @@
+TODO
+
+What happens when Next reads a bad rune?
+
+Perhaps add another rune like Eof. Err, perhaps?
