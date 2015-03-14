@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"testing"
+	"unicode/utf8"
 )
 
 func TestBasic(t *testing.T) {
@@ -118,6 +119,15 @@ func TestBasic(t *testing.T) {
 	}
 	if l.Get() != "line2" {
 		t.Fatalf("Expected skip to read 'line2', got %s", l.Get())
+	}
+}
+
+func TestBadRune(t *testing.T) {
+	ln := New("test", "\xff", nil)
+	l := ln.lexer
+	r := l.Next()
+	if r != utf8.RuneError {
+		t.Fatalf("Expected RuneError, got: %d", r)
 	}
 }
 

@@ -13,6 +13,9 @@ var errTooManyEmits = errors.New("Too many emits in a single stat function")
 // This is returned by next when there are no more characters to read.
 const Eof rune = -1
 
+// This is returned when a bad rune is encountered.
+const Err rune = utf8.RuneError
+
 // LexInner is the inner type which is used within StateFn to do the actual lexing.
 type LexInner struct {
 	tokens chan Token
