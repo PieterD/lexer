@@ -291,19 +291,22 @@ func not(in func(rune) bool) func(rune) bool {
 		if char == Eof {
 			return false
 		}
+		if char == Err {
+			return false
+		}
 		return !in(char)
 	}
 }
 
 // Read one character, but only if it is NOT one of the characters in the given string.
-// If Eof is reached, Except fails regardless of what the given string is.
+// If Eof or Err is reached, Except fails regardless of what the given string is.
 func (l *LexInner) Except(valid string) bool {
 	return l.One(not(acceptAny(valid)))
 }
 
 // Read as many characters as possible, but only characters that do NOT exist in the given string.
 // If Eof is reached, ExceptRun stops as though it found a successful character.
-// Thus, ExceptRun("") accepts everything until Eof.
+// Thus, ExceptRun("") accepts everything until Eof. or Err.
 func (l *LexInner) ExceptRun(valid string) (acceptnum int) {
 	return l.Run(not(acceptAny(valid)))
 }
