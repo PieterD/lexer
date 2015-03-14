@@ -157,6 +157,7 @@ func (l *LexInner) Eof() bool {
 
 // Read a single character.
 // If there are no more characters, it will return Eof.
+// If a non-utf8 character is read, it will return Err.
 func (l *LexInner) Next() (char rune) {
 	if l.Eof() {
 		l.mark.width = 0
