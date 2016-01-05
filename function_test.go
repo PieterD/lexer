@@ -220,3 +220,28 @@ func TestReplace(t *testing.T) {
 		t.Fatalf("Expected 'Hello, end!' got '%s'", l.ReplaceGet())
 	}
 }
+
+func TestBytes(t *testing.T) {
+	ln := New("test", "helloworld", nil)
+	l := ln.lexer
+	if !l.Bytes(5) {
+		t.Fatalf("Expected true, got false")
+	}
+	s := l.Get()
+	if s != "hello" {
+		t.Fatalf("Expected 'hello', got '%s'", s)
+	}
+	if l.Bytes(6) {
+		t.Fatalf("Expected false, got true")
+	}
+	if s != "hello" {
+		t.Fatalf("Expected 'hello', got '%s'", s)
+	}
+	if !l.Bytes(5) {
+		t.Fatalf("Expected true, got false")
+	}
+	s = l.Get()
+	if s != "helloworld" {
+		t.Fatalf("Expected 'helloworld', got '%s'", s)
+	}
+}

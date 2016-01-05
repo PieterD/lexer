@@ -310,3 +310,13 @@ func (l *LexInner) Except(valid string) bool {
 func (l *LexInner) ExceptRun(valid string) (acceptnum int) {
 	return l.Run(not(acceptAny(valid)))
 }
+
+// Consume the given number of bytes. Returns true if successful, false if there are not enough bytes.
+func (l *LexInner) Bytes(number int) bool {
+	if l.mark.pos+number > len(l.input) {
+		return false
+	}
+	l.mark.width = number
+	l.mark.pos += number
+	return true
+}
